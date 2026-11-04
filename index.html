@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="DiffWAM learns task-relevant world representations from consecutive visual changes for robot manipulation.">
+  <meta name="description" content="DiffWAM learns task-relevant world representations from consecutive visual differences for robot manipulation.">
   <meta name="theme-color" content="#fffaf4">
   <title>DiffWAM: Learning World Action Model from Consecutive Visual Difference</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20261103-compact">
   <script defer src="script.js"></script>
 </head>
 <body>
@@ -21,6 +21,7 @@
         <a href="#abstract">Abstract</a>
         <a href="#method">Method</a>
         <a href="#results">Results</a>
+        <a href="#additional-results">Experiments</a>
       </div>
     </nav>
 
@@ -42,9 +43,9 @@
         <li><sup>5</sup> School of Intelligent Robotics and Advanced Manufacturing Innovation, Fudan University</li>
       </ol>
       <div class="actions" aria-label="Project resources">
-        <a class="button button-primary" href="assets/DiffWAM-paper.pdf" target="_blank" rel="noopener">Read paper <span aria-hidden="true">↗</span></a>
-        <a class="button" href="#method">Explore method</a>
-        <span class="button button-muted" aria-disabled="true" title="Repository link will be added after release">Code · coming soon</span>
+        <a class="button button-primary" href="assets/DiffWAM-paper.pdf?v=20261104-figure1" target="_blank" rel="noopener">Paper</a>
+        <a class="button" href="https://github.com/ZGCA-HMI-Lab/DiffWAM" target="_blank" rel="noopener">Code</a>
+        <a class="button" href="#results">Experiments</a>
         <a class="button" href="#bibtex">BibTeX</a>
       </div>
     </div>
@@ -56,8 +57,8 @@
         <p class="section-kicker">Overview</p>
       </div>
       <figure class="paper-figure hero-figure">
-        <img src="assets/images/teaser.png" alt="DiffWAM overview comparing VLA, WAM, and explicit visual-change modeling, with benchmark results." fetchpriority="high">
-        <figcaption><strong>DiffWAM</strong> adds explicit latent-change prediction to future-state prediction and action generation. The visual experts enrich training and are removed at inference.</figcaption>
+        <img src="assets/images/teaser.png?v=20261104-final-overview" alt="DiffWAM overview: limitations of VLA, WAM, and WAM-s; complementary future-state and visual-difference modeling; qualitative attention maps; and in-distribution and out-of-distribution success rates." fetchpriority="high">
+        <figcaption><strong>DiffWAM overview.</strong> Consecutive observations motivate complementary state and difference modeling. The World, Diff, and Action Experts learn future states, consecutive visual differences, and actions under structured attention. Only the Observation Encoder and Action Expert remain at inference. Comparisons highlight existing limitations, task-focused attention, and improved success rates on in-distribution benchmarks and out-of-distribution simulation and real-world tasks.</figcaption>
       </figure>
     </section>
 
@@ -65,21 +66,21 @@
       <div class="section-heading compact">
         <h2>Abstract</h2>
       </div>
-      <p class="abstract-copy">World Action Models (WAMs) have emerged as an important paradigm in robot learning, which jointly predicts future scene states and robot actions from current observations and instructions. However, future states entangle task-related changes with large amounts of task-irrelevant content, such as static backgrounds, which weakens the model&#x27;s ability to capture changes relevant to task execution. To address this, we propose DiffWAM, a Mixture-of-Experts (MoE) framework that enhances world representations by jointly learning to predict future states and task-related changes. It comprises a World Expert for future frame prediction, an Action Expert for action generation, and a Delta Expert for predicting latent changes between consecutive frames along the trajectory. A structured unidirectional attention mask conditions the Delta, World, and Action Experts solely on the current-frame representation while blocking attention between experts. This design allows both the World and Delta Experts to be removed during inference, introducing no additional inference overhead. DiffWAM achieves state-of-the-art performance on the LIBERO and RoboTwin 2.0 benchmarks and substantially improves over FastWAM on real-world manipulation tasks. Specifically, it attains average success rates of 98.8%, 92.65%, and 52.5%, outperforming the state-of-the-art baseline (i.e., FastWAM) by 1.90, 1.55, and 20.0 percentage points, respectively.</p>
+      <p class="abstract-copy">World Action Models (WAMs) have emerged as an important paradigm in robot learning, jointly predicting future scene states and robot actions from current observations and instructions. However, future states entangle task-related changes with large amounts of task-irrelevant content, such as static backgrounds, which weakens the model&#x27;s ability to capture changes relevant to task execution. To address this, we propose DiffWAM, a Mixture-of-Experts (MoE) framework that enhances world representations by jointly learning future-state prediction and consecutive visual difference prediction. We define consecutive visual differences as differences between the latent representations of consecutive observations, providing an explicit learning signal for temporal variation. The framework comprises a World Expert for future frame prediction, an Action Expert for action generation, and a Diff Expert for predicting these latent differences along the trajectory. A structured unidirectional attention mask conditions the Diff, World, and Action Experts solely on the current-frame representation while blocking attention between experts. This design allows both the World and Diff Experts to be removed during inference, introducing no additional inference overhead. DiffWAM achieves state-of-the-art performance on the LIBERO and RoboTwin 2.0 benchmarks and substantially improves over FastWAM on real-world manipulation tasks. Specifically, it attains average success rates of 98.8%, 92.65%, and 88.3%, outperforming the state-of-the-art baseline (i.e., FastWAM) by 1.75, 1.55, and 15.0 percentage points, respectively.</p>
     </section>
 
     <section class="method-section reveal" id="method">
       <div class="section-heading">
         <p class="section-kicker">Method</p>
         <h2>Three experts, one shared observation.</h2>
-        <p>The World and Delta Experts share early visual processing layers, then specialize in future-state generation and latent-change regression. Structured attention prevents information leakage between prediction pathways.</p>
+        <p>The World and Diff Experts share early visual processing layers, then specialize in future-state generation and latent-difference regression. Structured attention prevents information leakage between prediction pathways.</p>
       </div>
       <figure class="paper-figure">
-        <img src="assets/images/method.png" alt="DiffWAM architecture with Observation Encoder, World Expert, Delta Expert, and Action Expert." loading="lazy">
+        <img src="assets/images/method.png?v=20261103-compact" alt="DiffWAM architecture with Observation Encoder, World Expert, Diff Expert, and Action Expert." loading="lazy">
         <figcaption>The current observation conditions all three experts. Only the Observation Encoder and Action Expert remain in the deployed policy.</figcaption>
       </figure>
       <figure class="paper-figure secondary-figure">
-        <img src="assets/images/mask.png" alt="Structured attention masks used by DiffWAM during shared and independent expert processing and inference." loading="lazy">
+        <img src="assets/images/mask.png?v=20261103-compact" alt="Structured attention masks used by DiffWAM during shared and independent expert processing and inference." loading="lazy">
         <figcaption><strong>Structured attention masks.</strong> The experts attend to the current observation and their own tokens while cross-expert attention remains blocked.</figcaption>
       </figure>
     </section>
@@ -91,16 +92,16 @@
       </div>
       <div class="split-panel">
         <figure class="paper-figure">
-          <img src="assets/images/training.png" alt="DiffWAM-S and DiffWAM-L training configurations and their shared inference pathway." loading="lazy">
+          <img src="assets/images/training.png?v=20261103-compact" alt="DiffWAM-S and DiffWAM-L training configurations and their shared inference pathway." loading="lazy">
         </figure>
         <div class="mode-list">
           <article>
             <span class="mode-badge">S</span>
-            <div><h3>DiffWAM-S</h3><p>Freezes the independent change-prediction block for smaller training sets while retaining change supervision in the shared representation.</p></div>
+            <div><h3>DiffWAM-S</h3><p>Freezes the independent Latent Diff Block for smaller training sets while retaining visual difference supervision in the shared representation.</p></div>
           </article>
           <article>
             <span class="mode-badge">L</span>
-            <div><h3>DiffWAM-L</h3><p>First trains the independent Delta Expert, then jointly optimizes all modules for larger and more diverse datasets.</p></div>
+            <div><h3>DiffWAM-L</h3><p>First trains the independent Diff Expert, then jointly optimizes all modules for larger and more diverse datasets.</p></div>
           </article>
           <article>
             <span class="mode-badge inference">→</span>
@@ -117,9 +118,9 @@
         <p>Average success rate across the three primary evaluation settings reported in the paper.</p>
       </div>
       <div class="metrics">
-        <article class="metric"><span class="metric-value">98.8<small>%</small></span><h3>LIBERO</h3><p>DiffWAM-S</p><span class="metric-delta">+1.90 pts vs. FastWAM</span></article>
+        <article class="metric"><span class="metric-value">98.8<small>%</small></span><h3>LIBERO</h3><p>DiffWAM-S</p><span class="metric-delta">+1.75 pts vs. FastWAM</span></article>
         <article class="metric"><span class="metric-value">92.65<small>%</small></span><h3>RoboTwin 2.0</h3><p>DiffWAM-L</p><span class="metric-delta">+1.55 pts vs. FastWAM</span></article>
-        <article class="metric"><span class="metric-value">52.5<small>%</small></span><h3>Real world</h3><p>DiffWAM-S</p><span class="metric-delta">+20.0 pts vs. FastWAM</span></article>
+        <article class="metric"><span class="metric-value">88.3<small>%</small></span><h3>Real world</h3><p>DiffWAM-S · 3 tasks</p><span class="metric-delta">+15.0 pts vs. FastWAM</span></article>
       </div>
       <div class="results-tables" aria-label="Main quantitative results">
         <article class="table-card wide-table">
@@ -131,14 +132,14 @@
               <tr><td>MemoryVLA</td><td>98.40</td><td>98.40</td><td>96.40</td><td>93.40</td><td>96.65</td></tr>
               <tr><td>Motus</td><td>96.80</td><td>99.80</td><td>96.60</td><td>97.60</td><td>97.70</td></tr>
               <tr><td>Lingbot-VA</td><td>98.50</td><td>99.60</td><td>97.20</td><td>98.50</td><td>98.45</td></tr>
-              <tr><td>FastWAM</td><td>98.20</td><td>99.80</td><td>97.80</td><td>92.40</td><td>96.90</td></tr>
+              <tr><td>FastWAM</td><td>98.20</td><td>99.80</td><td>97.80</td><td>92.40</td><td>97.05</td></tr>
               <tr><td>ImageWAM</td><td>97.20</td><td>99.20</td><td>98.80</td><td>98.40</td><td>98.40</td></tr>
               <tr><td>WLA</td><td>99.00</td><td>100.00</td><td>97.80</td><td>97.60</td><td>98.60</td></tr>
               <tr class="ours"><td>DiffWAM-S (Ours)</td><td>98.00</td><td>99.80</td><td>99.00</td><td>98.40</td><td>98.80</td></tr>
             </tbody>
           </table></div>
         </article>
-        <article class="table-card">
+        <article class="table-card wide-table">
           <div class="table-title"><div><span>Table 2</span><h3>RoboTwin 2.0 (%)</h3></div></div>
           <div class="table-scroll"><table>
             <thead><tr><th>Method</th><th>Clean</th><th>Random</th><th>Avg.</th></tr></thead>
@@ -152,20 +153,13 @@
             </tbody>
           </table></div>
         </article>
-        <article class="table-card">
-          <div class="table-title"><div><span>Table 3</span><h3>Real-world tasks (%)</h3></div></div>
-          <div class="table-scroll"><table>
-            <thead><tr><th>Method</th><th>Task 1</th><th>Task 2</th><th>Avg.</th></tr></thead>
-            <tbody>
-              <tr><td>FastWAM</td><td>30</td><td>35</td><td>32.50</td></tr>
-              <tr class="ours"><td>DiffWAM-S (Ours)</td><td>55</td><td>50</td><td>52.50</td></tr>
-            </tbody>
-          </table></div>
-          <p class="table-note">100 demonstrations are collected for each task.</p>
-        </article>
       </div>
       <figure class="paper-figure dark-figure">
-        <img src="assets/images/performance.png" alt="Training curves comparing DiffWAM and FastWAM on LIBERO." loading="lazy">
+        <img src="assets/images/real-world.png?v=20261103-compact" alt="Robot workspace, execution sequences for Place Pens, Store Block and Stack Cups, and success rates of 90%, 85% and 90% for DiffWAM-S." loading="lazy">
+        <figcaption><strong>Real-world manipulation.</strong> Place Pens, Store Block, and Stack Cups are evaluated over 20 trials per task for each method. We use approximately 1.1k demonstration trajectories in total and train DiffWAM-S for 63k steps. DiffWAM-S achieves 88.3% average success (53/60), compared with 73.3% (44/60) for FastWAM, an improvement of 15.0 percentage points.</figcaption>
+      </figure>
+      <figure class="paper-figure dark-figure">
+        <img src="assets/images/performance.svg?v=20261103-compact" alt="LIBERO optimization steps to 95% success and task-wise success improvements over FastWAM." loading="lazy">
         <figcaption>DiffWAM reaches 95% average LIBERO success in 6.9k steps, reducing the required optimization steps by 28.1% relative to FastWAM.</figcaption>
       </figure>
     </section>
@@ -173,24 +167,24 @@
     <section class="ablation-section reveal" id="ablations">
       <div class="section-heading compact">
         <p class="section-kicker">Ablation studies</p>
-        <h2>What makes change prediction work?</h2>
-        <p>LIBERO success rates (%). Delta supervision improves the baseline; a dedicated Delta Expert brings a further gain.</p>
+        <h2>What makes visual difference prediction work?</h2>
+        <p>LIBERO success rates (%). Difference supervision improves the baseline; a dedicated Diff Expert brings a further gain.</p>
       </div>
       <div class="ablation-tables">
         <article class="table-card">
-          <div class="table-title"><div><span>Architecture ablation</span><h3>Delta supervision and a dedicated expert</h3></div></div>
+          <div class="table-title"><div><span>Architecture ablation</span><h3>Difference supervision and a dedicated expert</h3></div></div>
           <div class="table-scroll"><table>
             <thead><tr><th>Architecture</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr></thead>
             <tbody>
-              <tr><td>World Expert (FastWAM)</td><td>98.20</td><td>99.80</td><td>97.80</td><td>92.40</td><td>96.90</td></tr>
-              <tr><td>World Expert + Delta Loss</td><td>97.80</td><td>100.00</td><td>97.40</td><td>95.80</td><td>97.75</td></tr>
-              <tr class="ours"><td>World Expert + Delta Expert</td><td>98.00</td><td>99.80</td><td>99.00</td><td>98.40</td><td>98.80</td></tr>
+              <tr><td>World Expert (FastWAM)</td><td>98.20</td><td>99.80</td><td>97.80</td><td>92.40</td><td>97.05</td></tr>
+              <tr><td>World Expert + Diff Loss</td><td>97.80</td><td>100.00</td><td>97.40</td><td>95.80</td><td>97.75</td></tr>
+              <tr class="ours"><td>World Expert + Diff Expert</td><td>98.00</td><td>99.80</td><td>99.00</td><td>98.40</td><td>98.80</td></tr>
             </tbody>
           </table></div>
-          <p class="table-note">The full architecture improves average success by 1.90 points and LIBERO-Long by 6.00 points over FastWAM.</p>
+          <p class="table-note">The full architecture improves average success by 1.75 points and LIBERO-Long by 6.00 points over FastWAM.</p>
         </article>
         <article class="table-card">
-          <div class="table-title"><div><span>Delta branch depth</span><h3>A moderate depth works best</h3></div></div>
+          <div class="table-title"><div><span>Diff branch depth</span><h3>A moderate depth works best</h3></div></div>
           <div class="table-scroll"><table>
             <thead><tr><th>DiffWAM-S configuration</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr></thead>
             <tbody>
@@ -200,7 +194,59 @@
               <tr><td>M = 20</td><td>97.00</td><td>100.00</td><td>98.40</td><td>98.00</td><td>98.35</td></tr>
             </tbody>
           </table></div>
-          <p class="table-note">All configurations retain the delta loss and freeze the independent Delta branch parameters during training.</p>
+          <p class="table-note">All configurations retain the diff loss and freeze the independent Diff branch parameters during training.</p>
+        </article>
+      </div>
+    </section>
+
+
+    <section class="ablation-section reveal" id="additional-results">
+      <div class="section-heading compact">
+        <p class="section-kicker">Additional experiments</p>
+        <h2>Generalization, matched training, and independent runs.</h2>
+        <p>Additional results from the current paper distinguish clean-to-random transfer from checkpoint continuation.</p>
+      </div>
+      <div class="ablation-tables">
+        <article class="table-card">
+          <div class="table-title"><div><span>Clean-to-random transfer</span><h3>RoboTwin 2.0 success rate (%)</h3></div></div>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Method</th><th>Embodied pretraining</th><th>Clean</th><th>Random</th><th>Avg.</th></tr></thead>
+            <tbody><tr><td>π0</td><td>Yes</td><td>46.4</td><td>16.3</td><td>31.35</td></tr>
+              <tr><td>X-VLA</td><td>Yes</td><td>68.0</td><td>20.9</td><td>44.45</td></tr>
+              <tr><td>π0.5</td><td>Yes</td><td>70.7</td><td>46.0</td><td>58.35</td></tr>
+              <tr><td>StarVLA</td><td>No</td><td>46.5</td><td>3.2</td><td>24.85</td></tr>
+              <tr><td>AHA-WAM</td><td>No</td><td>64.3</td><td>3.2</td><td>33.75</td></tr>
+              <tr><td>FastWAM†</td><td>No</td><td>70.2</td><td>1.50</td><td>35.85</td></tr>
+              <tr class="ours"><td>DiffWAM (Ours)</td><td>No</td><td>69.7</td><td>5.27</td><td>37.47</td></tr></tbody>
+          </table></div>
+          <p class="table-note">Train on clean demonstrations; evaluate under clean and randomized conditions without adaptation. These runs do not initialize from a task-trained FastWAM checkpoint. † Our FastWAM evaluation. DiffWAM is evaluated over 30 trials per task in each condition: 1045/1500 clean successes and 79/1500 randomized successes. The average uses unrounded rates. Random success improves by 3.77 percentage points; absolute success under this shift remains low.</p>
+        </article>
+        <article class="table-card">
+          <div class="table-title"><div><span>Matched checkpoint continuation</span><h3>Controlling for additional training</h3></div></div>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Method</th><th>Additional training</th><th>Clean success (%)</th></tr></thead>
+            <tbody><tr><td>FastWAM</td><td>1 epoch</td><td>88.47</td></tr><tr class="ours"><td>DiffWAM</td><td>1 epoch</td><td>93.13</td></tr></tbody>
+          </table></div>
+          <p class="table-note">Both methods start from the same task-trained FastWAM checkpoint and receive one additional epoch on clean demonstrations. DiffWAM improves clean success by 4.66 percentage points. This experiment is separate from clean-to-random transfer.</p>
+        </article>
+        <article class="table-card">
+          <div class="table-title"><div><span>Independent training runs</span><h3>Mean and sample standard deviation (%)</h3></div></div>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Benchmark</th><th>Metric</th><th>Run 1</th><th>Run 2</th><th>Run 3</th><th>Mean ± Std.</th></tr></thead>
+            <tbody><tr><td>RoboTwin 2.0</td><td>Avg. (full-data)</td><td>92.49</td><td>92.65</td><td>92.43</td><td>92.52 ± 0.11</td></tr>
+              <tr><td>LIBERO</td><td>Avg.</td><td>98.60</td><td>98.80</td><td>98.60</td><td>98.67 ± 0.12</td></tr>
+              <tr><td>RoboTwin 2.0</td><td>Avg. (clean-only)</td><td>37.32</td><td>37.38</td><td>37.47</td><td>37.39 ± 0.08</td></tr></tbody>
+          </table></div>
+          <p class="table-note">Three independently trained models with different random seeds, evaluated separately. RoboTwin Avg. is the mean of Clean and Random success; clean-only Avg. is not Random-only success. Main results above report individual training runs.</p>
+        </article>
+        <article class="table-card">
+          <div class="table-title"><div><span>Visual expert configurations</span><h3>Complementary prediction objectives on LIBERO (%)</h3></div></div>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Visual experts</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr></thead>
+            <tbody><tr><td>Only World Expert</td><td>98.20</td><td>99.80</td><td>97.80</td><td>92.40</td><td>97.05</td></tr>
+              <tr><td>Only Diff Expert</td><td>99.20</td><td>100.00</td><td>95.80</td><td>89.80</td><td>96.20</td></tr>
+              <tr class="ours"><td>World + Diff Expert</td><td>98.00</td><td>99.80</td><td>99.00</td><td>98.40</td><td>98.80</td></tr></tbody>
+          </table></div>
         </article>
       </div>
     </section>
@@ -224,7 +270,7 @@
 
   <footer>
     <a class="brand" href="#top"><span aria-hidden="true">D</span>DiffWAM</a>
-    <p>Learning world representations from consecutive visual changes.</p>
+    <p>Learning world representations from consecutive visual differences.</p>
     <p class="footer-note">Project page · 2026</p>
   </footer>
 </body>
