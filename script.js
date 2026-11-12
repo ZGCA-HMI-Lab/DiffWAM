@@ -21,3 +21,31 @@ copyButton?.addEventListener('click', async () => {
     copyButton.textContent = 'Select text';
   }
 });
+
+
+// All three experiment recordings are embedded directly in the page.
+const videos = [...document.querySelectorAll('video')];
+const playbackSpeed = 2;
+function applySpeed() {
+  videos.forEach(video => {
+    video.defaultPlaybackRate = playbackSpeed;
+    video.playbackRate = playbackSpeed;
+  });
+
+}
+videos.forEach(video => {
+  const status = video.closest('.robot-video-card')?.querySelector('[data-playback-status]');
+  const setStatus = text => { if (status) status.textContent = text; };
+  video.muted = true;
+  video.addEventListener('loadedmetadata', applySpeed);
+  video.addEventListener('playing', () => setStatus('Playing · real robot footage'));
+  video.addEventListener('pause', () => setStatus('Paused · press play to continue'));
+  video.addEventListener('waiting', () => setStatus('Buffering…'));
+  video.addEventListener('error', () => setStatus('Unable to load · use Open video'));
+  video.addEventListener('ratechange', () => {
+    if (video.playbackRate === playbackSpeed) return;
+    applySpeed();
+  });
+  video.play().catch(() => setStatus('Press play to watch'));
+});
+applySpeed();
